@@ -16,58 +16,40 @@ import { colors } from '../styles';
 import ButtonIcon from '../components/ButtonIcon';
 import Header from '../components/Header';
 import ImagePlaceholder from '../components/ImagePlaceholder';
+import { getBooks } from '../api';
 
 const { width } = Dimensions.get('window');
-
-const covers = [
-  { key: '0', uri: 'http://books.google.com/books/content?id=gJrmszNHQV4C&printsec=frontcover&img=1' },
-  { key: '1', uri: 'https://books.google.com/books/content?id=jCbhV37Cpw8C&printsec=frontcover&img=1' },
-  { key: '2', uri: 'https://books.google.com/books/content?id=jCbhV37Cpw8C&printsec=frontcover&img=1' },
-  { key: '3', uri: 'https://books.google.com/books/content?id=jCbhV37Cpw8C&printsec=frontcover&img=1' },
-  { key: '4', uri: 'https://books.google.com/books/content?id=jCbhV37Cpw8C&printsec=frontcover&img=1' },
-  { key: '5', uri: 'https://books.google.com/books/content?id=jCbhV37Cpw8C&printsec=frontcover&img=1' },
-  { key: '6', uri: 'https://books.google.com/books/content?id=jCbhV37Cpw8C&printsec=frontcover&img=1' },
-  { key: '7', uri: 'https://books.google.com/books/content?id=jCbhV37Cpw8C&printsec=frontcover&img=1' },
-  { key: '8', uri: 'https://books.google.com/books/content?id=jCbhV37Cpw8C&printsec=frontcover&img=1' },
-  { key: '9', uri: 'https://books.google.com/books/content?id=jCbhV37Cpw8C&printsec=frontcover&img=1' },
-  { key: '10', uri: 'https://books.google.com/books/content?id=jCbhV37Cpw8C&printsec=frontcover&img=1' },
-  { key: '11', uri: 'https://books.google.com/books/content?id=jCbhV37Cpw8C&printsec=frontcover&img=1' },
-  { key: '12', uri: 'https://books.google.com/books/content?id=jCbhV37Cpw8C&printsec=frontcover&img=1' },
-];
-
-const covers2 = [
-  { key: '0', uri: 'https://books.google.com/books/content?id=jCbhV37Cpw8C&printsec=frontcover&img=1' },
-  { key: '1', uri: 'http://books.google.com/books/content?id=gJrmszNHQV4C&printsec=frontcover&img=1' },
-  { key: '2', uri: 'http://books.google.com/books/content?id=gJrmszNHQV4C&printsec=frontcover&img=1' },
-  { key: '3', uri: 'http://books.google.com/books/content?id=gJrmszNHQV4C&printsec=frontcover&img=1' },
-  { key: '4', uri: 'http://books.google.com/books/content?id=gJrmszNHQV4C&printsec=frontcover&img=1' },
-  { key: '5', uri: 'http://books.google.com/books/content?id=gJrmszNHQV4C&printsec=frontcover&img=1' },
-  { key: '6', uri: 'http://books.google.com/books/content?id=gJrmszNHQV4C&printsec=frontcover&img=1' },
-  { key: '7', uri: 'http://books.google.com/books/content?id=gJrmszNHQV4C&printsec=frontcover&img=1' },
-  { key: '8', uri: 'http://books.google.com/books/content?id=gJrmszNHQV4C&printsec=frontcover&img=1' },
-  { key: '9', uri: 'http://books.google.com/books/content?id=gJrmszNHQV4C&printsec=frontcover&img=1' },
-  { key: '10', uri: 'http://books.google.com/books/content?id=gJrmszNHQV4C&printsec=frontcover&img=1' },
-  { key: '11', uri: 'http://books.google.com/books/content?id=gJrmszNHQV4C&printsec=frontcover&img=1' },
-  { key: '12', uri: 'http://books.google.com/books/content?id=gJrmszNHQV4C&printsec=frontcover&img=1' },
-];
 
 export default class List extends Component {
   state = {
     refreshing: false,
     loading: false,
-    covers: covers,
+    books: [],
+    search: '',
+    page: 0,
   };
+
+  componentDidMount() {
+    this.getBooks();
+  }
+
+  getBooks() {
+    this.setState({ refreshing: true });
+
+    getBooks(this.state.search, this.state.page).then(res => {
+      this.setState(prevState => ({
+        refreshing: false,
+        books: [...res.items],
+      }));
+    });
+  }
 
   _onRefresh = () => {
     if (this.state.refreshing) {
       return;
     }
 
-    this.setState({ refreshing: true });
-
-    setTimeout(() => {
-      this.setState({ refreshing: false, covers: covers2 });
-    }, 2000);
+    this.setState({ page: 0, search: '' }, () => this.getBooks());
   };
 
   _onEndReached = () => {
@@ -75,25 +57,17 @@ export default class List extends Component {
       return;
     }
 
-    this.setState({ loading: true });
-
-    const newCovers = [];
-
-    for (let i = 0; i < 10; i++) {
-      const key = Math.random().toString();
-      newCovers.push({
-        key,
-        uri:
-          'http://books.google.com/books/content?id=l0QPECGQySYC&printsec=frontcover&img=1',
-      });
-    }
-
-    setTimeout(() => {
-      this.setState(prevState => ({
-        loading: false,
-        covers: [...prevState.covers, ...newCovers],
-      }));
-    }, 500);
+    this.setState(
+      prevState => ({ loading: true, page: prevState.page + 1 }),
+      () => {
+        getBooks(this.state.search, this.state.page).then(res => {
+          this.setState(prevState => ({
+            loading: false,
+            books: [...prevState.books, ...res.items],
+          }));
+        });
+      }
+    );
   };
 
   renderItem = ({ item }) => (
@@ -102,7 +76,9 @@ export default class List extends Component {
       activeOpacity={0.8}
       style={styles.converConteier}
     >
-      <ImagePlaceholder source={{ uri: item.uri }} />
+      <ImagePlaceholder
+        source={{ uri: item.volumeInfo.imageLinks.thumbnail }}
+      />
     </TouchableOpacity>
   );
 
@@ -115,6 +91,8 @@ export default class List extends Component {
     );
   };
 
+  _keyExtractor = item => item.id;
+
   render() {
     return (
       <View style={styles.container}>
@@ -125,10 +103,11 @@ export default class List extends Component {
         />
 
         <FlatList
-          data={this.state.covers}
+          data={this.state.books}
+          keyExtractor={this._keyExtractor}
           numColumns={3}
           onEndReached={this._onEndReached}
-          onEndReachedThreshold={0.1}
+          onEndReachedThreshold={0.5}
           renderItem={this.renderItem}
           refreshControl={
             <RefreshControl
