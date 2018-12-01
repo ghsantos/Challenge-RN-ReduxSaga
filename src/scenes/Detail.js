@@ -18,6 +18,8 @@ const pageCount = 216;
 const price = 9.99;
 
 export default class Detail extends Component {
+  static navigationOptions = { header: null };
+
   state = {
     rateValue: 0,
   };
@@ -26,7 +28,13 @@ export default class Detail extends Component {
     return (
       <View style={styles.container}>
         <Header
-          left={<ButtonIcon name="ios-menu" onPress={() => {}} />}
+          left={
+            <ButtonIcon
+              name="ios-arrow-round-back"
+              onPress={() => this.props.navigation.goBack()}
+              size={30}
+            />
+          }
           center={<Text style={styles.headerTitle}>Detail component</Text>}
           right={<ButtonIcon name="ios-search" onPress={() => {}} />}
         />

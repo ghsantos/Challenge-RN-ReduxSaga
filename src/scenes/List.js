@@ -21,6 +21,8 @@ import { getBooks } from '../api';
 const { width } = Dimensions.get('window');
 
 export default class List extends Component {
+  static navigationOptions = { header: null };
+
   state = {
     refreshing: false,
     loading: false,
@@ -72,7 +74,7 @@ export default class List extends Component {
 
   renderItem = ({ item }) => (
     <TouchableOpacity
-      onPress={() => {}}
+      onPress={() => this.props.navigation.navigate('Detail')}
       activeOpacity={0.8}
       style={styles.converConteier}
     >
@@ -99,7 +101,13 @@ export default class List extends Component {
     return (
       <View style={styles.container}>
         <Header
-          left={<ButtonIcon name="ios-menu" onPress={() => {}} />}
+          left={
+            <ButtonIcon
+              name="ios-arrow-round-back"
+              onPress={() => this.props.navigation.goBack()}
+              size={30}
+            />
+          }
           center={<Text style={styles.headerTitle}>List component</Text>}
           right={<ButtonIcon name="ios-search" onPress={() => {}} />}
         />
