@@ -1,17 +1,30 @@
-import { put, takeLatest, all } from 'redux-saga/effects';
+import { put, takeEvery, all, select, call } from 'redux-saga/effects';
 
+import { getPage } from './selectors';
 import { getBooks } from '../api';
 
 function* fetchBooks() {
-  const books = yield getBooks();
+  const res = yield call(getBooks, 0);
 
-  yield put({ type: 'BOOKS_RECEIVED', books });
+  yield put({ type: 'BOOKS_RECEIVED', books: res.items });
 }
 
-function* actionWatcher() {
-  yield takeLatest('GET_BOOKS', fetchBooks);
+function* fetchNextBooks() {
+  const page = yield select(getPage);
+
+  const res = yield call(getBooks, page);
+
+  yield put({ type: 'NEXT_BOOKS_RECEIVED', books: res.items });
+}
+
+function* actionGetBooks() {
+  yield takeEvery('GET_BOOKS', fetchBooks);
+}
+
+function* actionGetNextBooks() {
+  yield takeEvery('GET_NEXT_BOOKS', fetchNextBooks);
 }
 
 export default function* rootSaga() {
-  yield all([actionWatcher()]);
+  yield all([actionGetBooks(), actionGetNextBooks()]);
 }

@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import {
   ActivityIndicator,
   Dimensions,
@@ -16,60 +17,26 @@ import { colors } from '../styles';
 import ButtonIcon from '../components/ButtonIcon';
 import Header from '../components/Header';
 import ImagePlaceholder from '../components/ImagePlaceholder';
-import { getBooks } from '../api';
 
 const { width } = Dimensions.get('window');
 
-export default class List extends Component {
+class List extends Component {
   static navigationOptions = { header: null };
 
-  state = {
-    refreshing: false,
-    loading: false,
-    books: [],
-    search: '',
-    page: 0,
-  };
-
   componentDidMount() {
-    this.getBooks();
-  }
-
-  getBooks() {
-    this.setState({ refreshing: true });
-
-    getBooks(this.state.search, this.state.page).then(res => {
-      this.setState(prevState => ({
-        refreshing: false,
-        books: [...res.items],
-      }));
-    });
+    this.props.getBooks();
   }
 
   _onRefresh = () => {
-    if (this.state.refreshing) {
-      return;
+    if (!this.props.refreshing) {
+      this.props.getBooks();
     }
-
-    this.setState({ page: 0, search: '' }, () => this.getBooks());
   };
 
   _onEndReached = () => {
-    if (this.state.loading) {
-      return;
+    if (!this.props.loading) {
+      this.props.getNextBooks();
     }
-
-    this.setState(
-      prevState => ({ loading: true, page: prevState.page + 1 }),
-      () => {
-        getBooks(this.state.search, this.state.page).then(res => {
-          this.setState(prevState => ({
-            loading: false,
-            books: [...prevState.books, ...res.items],
-          }));
-        });
-      }
-    );
   };
 
   renderItem = ({ item }) => (
@@ -87,7 +54,7 @@ export default class List extends Component {
   );
 
   renderFooter = () => {
-    if (!this.state.loading) return null;
+    if (!this.props.loading) return null;
     return (
       <View>
         <ActivityIndicator />
@@ -113,7 +80,7 @@ export default class List extends Component {
         />
 
         <FlatList
-          data={this.state.books}
+          data={this.props.books}
           keyExtractor={this._keyExtractor}
           numColumns={3}
           onEndReached={this._onEndReached}
@@ -121,7 +88,7 @@ export default class List extends Component {
           renderItem={this.renderItem}
           refreshControl={
             <RefreshControl
-              refreshing={this.state.refreshing}
+              refreshing={this.props.refreshing}
               onRefresh={this._onRefresh}
             />
           }
@@ -133,6 +100,27 @@ export default class List extends Component {
     );
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    books: state.booksReducer.books,
+    page: state.booksReducer.page,
+    refreshing: state.booksReducer.refreshing,
+    loading: state.booksReducer.loading,
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    getBooks: () => dispatch({ type: 'GET_BOOKS' }),
+    getNextBooks: () => dispatch({ type: 'GET_NEXT_BOOKS' }),
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(List);
 
 const styles = StyleSheet.create({
   container: {
