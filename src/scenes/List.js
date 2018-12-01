@@ -77,7 +77,9 @@ export default class List extends Component {
       style={styles.converConteier}
     >
       <ImagePlaceholder
-        source={{ uri: item.volumeInfo.imageLinks.thumbnail }}
+        uri={
+          item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : ''
+        }
       />
     </TouchableOpacity>
   );
