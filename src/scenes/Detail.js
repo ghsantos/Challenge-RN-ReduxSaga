@@ -1,23 +1,20 @@
 /* @flow */
 
 import React, { Component } from 'react';
-import { Image, View, ScrollView, Text, StyleSheet } from 'react-native';
+import { connect } from 'react-redux';
+import { Dimensions, View, ScrollView, Text, StyleSheet } from 'react-native';
 
 import { colors } from '../styles';
 import Button from '../components/Button';
 import LikeButton from '../components/LikeButton';
 import ButtonIcon from '../components/ButtonIcon';
 import Header from '../components/Header';
+import ImagePlaceholder from '../components/ImagePlaceholder';
 import Rate from '../components/Rate';
 
-const text = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
-const title = 'Logo Design Love: A Guide to Crating Iconic Brand Identities';
-const author = 'David Airey';
-const coverUri = 'https://books.google.com/books/content?id=jCbhV37Cpw8C&printsec=frontcover&img=1';
-const pageCount = 216;
-const price = 9.99;
+const { width } = Dimensions.get('window');
 
-export default class Detail extends Component {
+class Detail extends Component {
   static navigationOptions = { header: null };
 
   state = {
@@ -25,6 +22,15 @@ export default class Detail extends Component {
   };
 
   render() {
+    console.log(this.props);
+    const {
+      title,
+      authors,
+      description,
+      imageLinks,
+    } = this.props.book.volumeInfo;
+    const { listPrice } = this.props.book.saleInfo;
+
     return (
       <View style={styles.container}>
         <Header
@@ -42,16 +48,28 @@ export default class Detail extends Component {
         <ScrollView>
           <View style={styles.main}>
             <View style={{ flexDirection: 'row' }}>
-              <Image source={{ uri: coverUri }} style={styles.cover} />
+              <View style={styles.cover}>
+                <ImagePlaceholder
+                  uri={imageLinks ? imageLinks.thumbnail : ''}
+                />
+              </View>
 
               <View style={styles.details}>
                 <View>
                   <Text style={styles.title}>{title}</Text>
-                  <Text style={styles.author}>by {author}</Text>
+                  {authors && (
+                    <Text style={styles.author}>
+                      by {`${authors.join(', ')}`}
+                    </Text>
+                  )}
                 </View>
 
                 <View style={styles.priceRateContainer}>
-                  <Text style={styles.price}>${price}</Text>
+                  {listPrice && (
+                    <Text style={styles.price}>
+                      ${listPrice.amount.toFixed(2)}
+                    </Text>
+                  )}
 
                   <Rate
                     onChange={value => this.setState({ rateValue: value })}
@@ -63,7 +81,7 @@ export default class Detail extends Component {
 
             <View style={styles.pagesButtonsContainer}>
               <View style={styles.pagesContainer}>
-                <Text>{pageCount} pages</Text>
+                <Text>216 pages</Text>
               </View>
 
               <View style={styles.buttonsContainer}>
@@ -77,13 +95,24 @@ export default class Detail extends Component {
           </View>
 
           <View style={styles.descriptionContainer}>
-            <Text style={styles.descriptionText}>{text}</Text>
+            <Text style={styles.descriptionText}>{description}</Text>
           </View>
         </ScrollView>
       </View>
     );
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    book: state.booksReducer.book,
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  {}
+)(Detail);
 
 const styles = StyleSheet.create({
   container: {
@@ -98,8 +127,8 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
   },
   cover: {
-    width: 115,
-    height: 148,
+    width: (width - 20) / 3,
+    height: (width - 20) / 2.3,
   },
   details: {
     flex: 1,

@@ -2,6 +2,7 @@ import { combineReducers } from 'redux';
 
 const initialState = {
   books: [],
+  book: {},
   page: 0,
   refreshing: false,
   loading: false,
@@ -30,6 +31,9 @@ function booksReducer(state = initialState, action) {
         loading: false,
         page: state.page + 1,
       };
+
+    case 'SET_BOOK':
+      return { ...state, book: { ...action.book } };
 
     default:
       return state;

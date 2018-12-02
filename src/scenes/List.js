@@ -41,7 +41,10 @@ class List extends Component {
 
   renderItem = ({ item }) => (
     <TouchableOpacity
-      onPress={() => this.props.navigation.navigate('Detail')}
+      onPress={() => {
+        this.props.setBook(item);
+        this.props.navigation.navigate('Detail');
+      }}
       activeOpacity={0.8}
       style={styles.converConteier}
     >
@@ -114,6 +117,7 @@ const mapDispatchToProps = dispatch => {
   return {
     getBooks: () => dispatch({ type: 'GET_BOOKS' }),
     getNextBooks: () => dispatch({ type: 'GET_NEXT_BOOKS' }),
+    setBook: book => dispatch({ type: 'SET_BOOK', book }),
   };
 };
 
