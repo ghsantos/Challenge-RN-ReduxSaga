@@ -4,6 +4,7 @@ const initialState = {
   books: [],
   book: {},
   page: 0,
+  search: '',
   refreshing: false,
   loading: false,
 };
@@ -34,6 +35,9 @@ function booksReducer(state = initialState, action) {
 
     case 'SET_BOOK':
       return { ...state, book: { ...action.book } };
+
+    case 'SEARCH_BOOKS':
+      return { ...state, search: action.search, page: 0, refreshing: true };
 
     default:
       return state;

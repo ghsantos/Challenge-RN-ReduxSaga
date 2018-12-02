@@ -8,14 +8,12 @@ import {
   FlatList,
   RefreshControl,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 
 import { colors } from '../styles';
-import ButtonIcon from '../components/ButtonIcon';
-import Header from '../components/Header';
+import HeaderSearch from '../components/HeaderSearch';
 import ImagePlaceholder from '../components/ImagePlaceholder';
 
 const { width } = Dimensions.get('window');
@@ -70,16 +68,10 @@ class List extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Header
-          left={
-            <ButtonIcon
-              name="ios-arrow-round-back"
-              onPress={() => this.props.navigation.goBack()}
-              size={30}
-            />
-          }
-          center={<Text style={styles.headerTitle}>List component</Text>}
-          right={<ButtonIcon name="ios-search" onPress={() => {}} />}
+        <HeaderSearch
+          title={this.props.search || 'Books'}
+          onPressSearch={search => this.props.searchBooks(search)}
+          onPressBack={() => this.props.navigation.goBack()}
         />
 
         <FlatList
@@ -107,7 +99,7 @@ class List extends Component {
 const mapStateToProps = state => {
   return {
     books: state.booksReducer.books,
-    page: state.booksReducer.page,
+    search: state.booksReducer.search,
     refreshing: state.booksReducer.refreshing,
     loading: state.booksReducer.loading,
   };
@@ -118,6 +110,7 @@ const mapDispatchToProps = dispatch => {
     getBooks: () => dispatch({ type: 'GET_BOOKS' }),
     getNextBooks: () => dispatch({ type: 'GET_NEXT_BOOKS' }),
     setBook: book => dispatch({ type: 'SET_BOOK', book }),
+    searchBooks: search => dispatch({ type: 'SEARCH_BOOKS', search }),
   };
 };
 
