@@ -7,8 +7,7 @@ import { Dimensions, View, ScrollView, Text, StyleSheet } from 'react-native';
 import { colors } from '../styles';
 import Button from '../components/Button';
 import LikeButton from '../components/LikeButton';
-import ButtonIcon from '../components/ButtonIcon';
-import Header from '../components/Header';
+import HeaderSearch from '../components/HeaderSearch';
 import ImagePlaceholder from '../components/ImagePlaceholder';
 import Rate from '../components/Rate';
 
@@ -21,8 +20,12 @@ class Detail extends Component {
     rateValue: 0,
   };
 
+  searchBooks = search => {
+    this.props.searchBooks(search);
+    this.props.navigation.goBack();
+  };
+
   render() {
-    console.log(this.props);
     const {
       title,
       authors,
@@ -33,16 +36,10 @@ class Detail extends Component {
 
     return (
       <View style={styles.container}>
-        <Header
-          left={
-            <ButtonIcon
-              name="ios-arrow-round-back"
-              onPress={() => this.props.navigation.goBack()}
-              size={30}
-            />
-          }
-          center={<Text style={styles.headerTitle}>Detail component</Text>}
-          right={<ButtonIcon name="ios-search" onPress={() => {}} />}
+        <HeaderSearch
+          title={this.props.search || 'Books'}
+          onPressSearch={this.searchBooks}
+          onPressBack={() => this.props.navigation.goBack()}
         />
 
         <ScrollView>
@@ -106,12 +103,19 @@ class Detail extends Component {
 const mapStateToProps = state => {
   return {
     book: state.booksReducer.book,
+    search: state.booksReducer.search,
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    searchBooks: search => dispatch({ type: 'SEARCH_BOOKS', search }),
   };
 };
 
 export default connect(
   mapStateToProps,
-  {}
+  mapDispatchToProps
 )(Detail);
 
 const styles = StyleSheet.create({
