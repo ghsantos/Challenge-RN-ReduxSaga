@@ -7,7 +7,11 @@ function* fetchBooks() {
   const search = yield select(getSearch);
   const res = yield call(getBooks, 0, search);
 
-  yield put({ type: 'BOOKS_RECEIVED', books: res.items });
+  if (res.items) {
+    yield put({ type: 'BOOKS_RECEIVED', books: res.items });
+  } else {
+    yield put({ type: 'BOOKS_RECEIVED', books: [] });
+  }
 }
 
 function* fetchNextBooks() {
@@ -16,7 +20,11 @@ function* fetchNextBooks() {
 
   const res = yield call(getBooks, page, search);
 
-  yield put({ type: 'NEXT_BOOKS_RECEIVED', books: res.items });
+  if (res.items) {
+    yield put({ type: 'NEXT_BOOKS_RECEIVED', books: res.items });
+  } else {
+    yield put({ type: 'NEXT_BOOKS_RECEIVED', books: [] });
+  }
 }
 
 function* actionGetBooks() {
