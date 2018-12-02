@@ -86,7 +86,7 @@ class Detail extends Component {
                   <Button onPress={() => {}} text="BUY" />
                 </View>
 
-                <LikeButton />
+                <LikeButton onPress={() => {}} />
               </View>
             </View>
           </View>
